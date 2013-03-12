@@ -23,11 +23,11 @@ This will create a directory containing the files. Next, enter the directory and
     cd rpirtscts
     make
 
-All going well, an `rpirtscts` executable will be built. Running it requires root permissions, so:
+All going well, an `rpirtscts` executable will be built. The command takes a single option, either `on` or `off`, to respectively enable or disable the flow control pins. Running it requires root permissions, so:
 
-    sudo ./rpirtscts
+    sudo ./rpirtscts on
 
-A short message indicates success.
+Any other invocation produces a short usage description.
 
 It is also possible to alter file permissions so that `sudo` is not necessary:
 

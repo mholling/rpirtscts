@@ -30,7 +30,7 @@
 #include <errno.h>
 #include <string.h>
 
-int main() {
+void set_rts_cts(int enable) {
 	int fd = open("/dev/mem", O_RDWR|O_SYNC);
 	if (fd < 0) {
 		fprintf(stderr, "can't open /dev/mem (%s)\n", strerror(errno));
@@ -45,14 +45,28 @@ int main() {
 	}
 	
 	volatile unsigned *gpio = (volatile unsigned *)gpio_map;
-	gpio[GFPSEL3] |= 0x0000003F; // set alternate function 3 on GPIO30 and GPIO31
-	
-	printf("Hardware flow control pins now enabled on serial port.\n" \
-	"P5 header pins are remapped as follows:\n" \
-	"  P5-05 -> /CTS (input)\n" \
-	"  P5-06 -> /RTS (output)\n" \
+	enable ? (gpio[GFPSEL3] |= 0x0000003F) : (gpio[GFPSEL3] &= ~0x0000003F);
+}
+
+void print_usage() {
+	printf( \
+	"Usage: rpirtscts on|off\n" \
+	"Enable or disable hardware flow control pins on ttyAMA0.\n" \
+	"P5 header pins remap as follows:\n" \
+	"    P5-05 -> CTS (input)\n" \
+	"    P5-06 -> RTS (output)\n" \
 	"You may also need to enable flow control in the driver:\n" \
-	"  stty -F /dev/ttyAMA0 crtscts\n");
-	
+	"    stty -F /dev/ttyAMA0 crtscts\n" \
+	);
+}
+
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		print_usage();
+	} else {
+		int  enable = strcmp(argv[1],  "on") == 0;
+		int disable = strcmp(argv[1], "off") == 0;
+		enable || disable ? set_rts_cts(enable) : print_usage();
+	}
 	return EXIT_SUCCESS;
 }
