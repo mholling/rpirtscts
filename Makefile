@@ -5,3 +5,6 @@ $(NAME): $(NAME).c
 
 clean:
 	rm -f $(NAME)
+
+install: $(NAME)
+	cp $(NAME) /usr/local/bin
