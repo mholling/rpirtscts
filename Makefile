@@ -1,5 +1,5 @@
 NAME = rpirtscts
-DESTDIR ?= /usr/local/bin
+PREFIX ?= /usr
 
 $(NAME): $(NAME).c
 	cc -o $(NAME) $(NAME).c -std=gnu99 -Wno-declaration-after-statement
@@ -8,4 +8,4 @@ clean:
 	rm -f $(NAME)
 
 install: $(NAME)
-	cp $(NAME) $(DESTDIR)
+	cp --parents $(NAME) "$(DESTDIR)$(PREFIX)/bin"
