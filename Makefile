@@ -8,4 +8,4 @@ clean:
 	rm -f $(NAME)
 
 install: $(NAME)
-	cp --parents $(NAME) "$(DESTDIR)$(PREFIX)/bin"
+	cp --parents $(NAME) "$(DESTDIR)$(PREFIX)/bin/"
