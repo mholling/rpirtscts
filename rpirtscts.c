@@ -1,24 +1,24 @@
 /*
-    A command-line utility for enabling hardware flow control on the
-    Raspberry Pi serial port.
+  A command-line utility for enabling hardware flow control on the
+  Raspberry Pi serial port.
     
-    Copyright (C) 2013 Matthew Hollingworth.
+  Copyright (C) 2013 Matthew Hollingworth.
 
-    Modifications to support Raspberry Pi versioning and new 40 pin GPIO header 
-    Copyright (C) 2016 Brendan Traw.
+  40 pin header support for newer Raspberry Pis 
+  Copyright (C) 2016 Brendan Traw.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #define GPIO_BASE (0x20200000)
@@ -39,36 +39,26 @@
 #include <errno.h>
 #include <string.h>
 
-static unsigned rpi_version() {
-        FILE *fp;
-	char param[64];
-	char arg[32];
-	char *p;
-	unsigned version;
-	
-	fp = fopen("/proc/cmdline", "r");
-	
-	if (fp != NULL) {
-	  while (fscanf(fp, "%s ", param) != EOF) {
-	    p = strstr(param, "=");
-	    if (p != NULL) {
-	      strncpy(p, " ", 1);
-	      sscanf(param, "%s %x", arg, &version);
-	      if (!strcmp("bcm2708.boardrev", arg)) {
+int rpi_version() {
+	int result = -1;
+	char string[256];
+	FILE *fp = fopen("/proc/cmdline", "r");
+	if (fp) {
+		while (fscanf(fp, "%255s", string) == 1)
+			if (sscanf(string, "bcm2708.boardrev=%i", &result))
+				break;
 		fclose(fp);
-		return (version);
-	      }
-	    }
-	  }
 	}
-	fclose(fp);
-	printf("Board version could not be determined.\n");
-	exit(EXIT_FAILURE);
+	if (result < 0) {
+		fprintf(stderr, "can't parse /proc/cmdline\n");
+		exit(EXIT_FAILURE);
+	}
+	return result;
 }
 
-static unsigned rpi_gpio_header_type() {
-        unsigned header_type = GPIO_header_40;
-        switch (rpi_version()) { /* Adapted from http://www.raspberrypi-spy.co.uk/2012/09/checking-your-raspberry-pi-board-version/ */
+int rpi_gpio_header_type() {
+	int header_type = GPIO_header_40;
+	switch (rpi_version()) { /* Adapted from http://www.raspberrypi-spy.co.uk/2012/09/checking-your-raspberry-pi-board-version/ */
 	case 0x000002: printf("Model B Rev 1.0 with 26 pin GPIO header detected\n"); header_type = GPIO_header_26; break;
 	case 0x000003: printf("Model B Rev 1.0+ with 26 pin GPIO header detected\n"); header_type = GPIO_header_26; break;
 	case 0x000004: printf("Model B Rev 2.0 with 26 pin GPIO header detected\n"); header_type = GPIO_header_26; break;
@@ -93,7 +83,7 @@ static unsigned rpi_gpio_header_type() {
 
 
 void set_rts_cts(int enable) {
-        int gfpsel, gpiomask;
+	int gfpsel, gpiomask;
 	int fd = open("/dev/mem", O_RDWR|O_SYNC);
 	if (fd < 0) {
 		fprintf(stderr, "can't open /dev/mem (%s)\n", strerror(errno));
@@ -110,14 +100,14 @@ void set_rts_cts(int enable) {
 	volatile unsigned *gpio = (volatile unsigned *)gpio_map;
 
 	if (rpi_gpio_header_type() == GPIO_header_40) { /* newer 40 pin GPIO header */
-	  gfpsel = GFPSEL1;
-	  gpiomask = GPIO1617mask;
-	  printf("Enabling CTS0 and RTS0 on GPIOs 16 and 17\n");
+		gfpsel = GFPSEL1;
+		gpiomask = GPIO1617mask;
+		printf("Enabling CTS0 and RTS0 on GPIOs 16 and 17\n");
 	}
 	else { /* 26 pin GPIO header */
-	  gfpsel = GFPSEL3;
-	  gpiomask = GPIO3031mask;
-	  printf("Enabling CTS0 and RTS0 on GPIOs 30 and 31\n");
+		gfpsel = GFPSEL3;
+		gpiomask = GPIO3031mask;
+		printf("Enabling CTS0 and RTS0 on GPIOs 30 and 31\n");
 	}
 	
 	enable ? (gpio[gfpsel] |= gpiomask) : (gpio[gfpsel] &= ~gpiomask);
@@ -125,18 +115,18 @@ void set_rts_cts(int enable) {
 
 void print_usage() {
 	printf( \
-	"Usage: rpirtscts on|off\n" \
-	"Enable or disable hardware flow control pins on ttyAMA0.\n" \
-	"\nFor 26 pin GPIO header boards:\n"    \
-	"P5 header pins remap as follows:\n"	\
-	"    P5-05 (GPIO30) -> CTS (input)\n" \
-	"    P5-06 (GPIO31)-> RTS (output)\n" \
-	"\nFor 40 pin GPIO header boards:\n"    \
-	"    P1-36 (GPIO16) -> CTS (input)\n" \
-	"    P1-11 (GPIO17)-> RTS (output)\n" \
-	"\nYou may also need to enable flow control in the driver:\n" \
-	"    stty -F /dev/ttyAMA0 crtscts\n" \
-	);
+		   "Usage: rpirtscts on|off\n" \
+		   "Enable or disable hardware flow control pins on ttyAMA0.\n" \
+		   "\nFor 26 pin GPIO header boards:\n"    \
+		   "P5 header pins remap as follows:\n"	\
+		   "    P5-05 (GPIO30) -> CTS (input)\n" \
+		   "    P5-06 (GPIO31)-> RTS (output)\n" \
+		   "\nFor 40 pin GPIO header boards:\n"    \
+		   "    P1-36 (GPIO16) -> CTS (input)\n" \
+		   "    P1-11 (GPIO17)-> RTS (output)\n" \
+		   "\nYou may also need to enable flow control in the driver:\n" \
+		   "    stty -F /dev/ttyAMA0 crtscts\n" \
+			);
 }
 
 int main(int argc, char *argv[]) {
