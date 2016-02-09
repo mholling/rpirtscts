@@ -1,24 +1,24 @@
 /*
-  A command-line utility for enabling hardware flow control on the
-  Raspberry Pi serial port.
-    
-  Copyright (C) 2013 Matthew Hollingworth.
+    A command-line utility for enabling hardware flow control on the
+    Raspberry Pi serial port.
 
-  40 pin header support for newer Raspberry Pis 
-  Copyright (C) 2016 Brendan Traw.
+    Copyright (C) 2013 Matthew Hollingworth.
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+    40 pin header support for newer Raspberry Pis 
+    Copyright (C) 2016 Brendan Traw.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #define GPIO_BASE (0x20200000)
@@ -115,18 +115,18 @@ void set_rts_cts(int enable) {
 
 void print_usage() {
 	printf( \
-		   "Usage: rpirtscts on|off\n" \
-		   "Enable or disable hardware flow control pins on ttyAMA0.\n" \
-		   "\nFor 26 pin GPIO header boards:\n"    \
-		   "P5 header pins remap as follows:\n"	\
-		   "    P5-05 (GPIO30) -> CTS (input)\n" \
-		   "    P5-06 (GPIO31)-> RTS (output)\n" \
-		   "\nFor 40 pin GPIO header boards:\n"    \
-		   "    P1-36 (GPIO16) -> CTS (input)\n" \
-		   "    P1-11 (GPIO17)-> RTS (output)\n" \
-		   "\nYou may also need to enable flow control in the driver:\n" \
-		   "    stty -F /dev/ttyAMA0 crtscts\n" \
-			);
+	"Usage: rpirtscts on|off\n" \
+	"Enable or disable hardware flow control pins on ttyAMA0.\n" \
+	"\nFor 26 pin GPIO header boards:\n"    \
+	"P5 header pins remap as follows:\n"	\
+	"    P5-05 (GPIO30) -> CTS (input)\n" \
+	"    P5-06 (GPIO31) -> RTS (output)\n" \
+	"\nFor 40 pin GPIO header boards:\n"    \
+	"    P1-36 (GPIO16) -> CTS (input)\n" \
+	"    P1-11 (GPIO17) -> RTS (output)\n" \
+	"\nYou may also need to enable flow control in the driver:\n" \
+	"    stty -F /dev/ttyAMA0 crtscts\n" \
+	);
 }
 
 int main(int argc, char *argv[]) {
