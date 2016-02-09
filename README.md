@@ -10,7 +10,9 @@ Two distinct handshake signal, known as RTS (_Request to Send_) and CTS (_Clear 
 
 On the Raspberry Pi (except the revision 1 model B), an unpopulated header, [P5](http://elinux.org/RPi%5FLow-level%5Fperipherals#P5%5Fheader), brings out RTS and CTS. The signals are implemented as alternate functions of GPIO30 and GPIO31, which can be found on pins 5 and 6, respectively, of the header. (Pay close attention to the location of these pins; the mirrored numbering reflects the header's default position on the _underside_ of the board.) By soldering your own header, you can access RTS and CTS for use with your serial peripheral. Note that they are 3.3V, active-low logic signals.
 
-This code implements a simple program to enable the alternate functions on GPIO30 and GPIO31, thereby enabling the RTS and CTS flow control signals to be used along with the data signals TXD and RXD located on the [GPIO header P1](http://elinux.org/RPi_Low-level_peripherals#General_Purpose_Input.2FOutput_.28GPIO.29).
+Newer Raspberry Pi boards have a 40 pin GPIO header replacing the 26 pin and P5 headers.  This requires switching the GPIO which support CTS and RTS to GPIOs 16 (pin 36 on 40 pin header) and 17 (pin 11) respectively.  rpirtscts will attempt to detect the model of the Raspberry Pi and configure the appropriate GPIOs.
+
+This code implements a simple program to enable the alternate functions on GPIO30 and GPIO31 (or GPIO16 and GPIO 17), thereby enabling the RTS and CTS flow control signals to be used along with the data signals TXD and RXD located on the [GPIO header P1](http://elinux.org/RPi_Low-level_peripherals#General_Purpose_Input.2FOutput_.28GPIO.29).
 
 ## Usage
 
