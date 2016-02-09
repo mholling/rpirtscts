@@ -31,6 +31,8 @@
 #define GPIO_header_26 0x00
 #define GPIO_header_40 0x01
 
+#define VERSION "1.1"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -115,6 +117,7 @@ void set_rts_cts(int enable) {
 
 void print_usage() {
 	printf( \
+	"Version: " VERSION "\n" \
 	"Usage: rpirtscts on|off\n" \
 	"Enable or disable hardware flow control pins on ttyAMA0.\n" \
 	"\nFor 26 pin GPIO header boards:\n"    \
