@@ -31,7 +31,7 @@
 #define GPIO_header_26 0x00
 #define GPIO_header_40 0x01
 
-#define VERSION "1.1"
+#define VERSION "1.2"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,12 +72,19 @@ int rpi_gpio_header_type() {
 	case 0x00000d: printf("Model B Rev 2.0 with 26 pin GPIO header detected\n"); header_type = GPIO_header_26; break;
 	case 0x00000e: printf("Model B Rev 2.0 with 26 pin GPIO header detected\n"); header_type = GPIO_header_26; break;
 	case 0x00000f: printf("Model B Rev 2.0 with 26 pin GPIO header detected\n"); header_type = GPIO_header_26; break;
-	case 0x000010: printf("Model B+ with 40 pin GPIO header detected\n"); break;
+	case 0x000010: printf("Model B+ Rev 1.0 with 40 pin GPIO header detected\n"); break;
+	case 0x000014:
 	case 0x000011: printf("Compute Module is not supported\n"); exit(EXIT_FAILURE);
-	case 0x000012: printf("Model A+ with 40 pin GPIO header detected\n"); break;
-	case 0xa01041: printf("Pi 2 Model B with 40 pin GPIO header detected\n"); break;
-	case 0xa21041: printf("Pi 2 Model B with 40 pin GPIO header detected\n"); break;
-	case 0x900092: printf("PiZero with 40 pin GPIO header detected\n"); break;
+	case 0x000015:
+	case 0x000012: printf("Model A+ Rev 1.1 with 40 pin GPIO header detected\n"); break;
+	case 0x000013: printf("Model B+ Rev 1.2 with 40 pin GPIO header detected\n"); break;
+	case 0xa01040: printf("Pi 2 Model B Rev 1.0 with 40 pin GPIO header detected\n"); break;
+	case 0xa01041:
+	case 0xa21041: printf("Pi 2 Model B Rev 1.1 with 40 pin GPIO header detected\n"); break;
+	case 0x900092: printf("Pi Zero Rev 1.2 with 40 pin GPIO header detected\n"); break;
+	case 0x900093: printf("Pi Zero Rev 1.3 with 40 pin GPIO header detected\n"); break;
+	case 0xa22082:
+	case 0xa02082: printf("Pi 3 Model B Rev 1.2 with 40 pin GPIO header detected\n"); break;
 	default: printf("Unknown Raspberry Pi - assuming 40 pin GPIO header\n");
 	}
 	return (header_type);
