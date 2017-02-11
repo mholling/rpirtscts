@@ -47,7 +47,7 @@ int rpi_version() {
 	FILE *fp = fopen("/proc/cmdline", "r");
 	if (fp) {
 		while (fscanf(fp, "%255s", string) == 1)
-			if (sscanf(string, "bcm2708.boardrev=%i", &result))
+			if (sscanf(string, "bcm270%*d.boardrev=%i", &result))
 				break;
 		fclose(fp);
 	}
@@ -111,12 +111,14 @@ void set_rts_cts(int enable) {
 	if (rpi_gpio_header_type() == GPIO_header_40) { /* newer 40 pin GPIO header */
 		gfpsel = GFPSEL1;
 		gpiomask = GPIO1617mask;
-		printf("Enabling CTS0 and RTS0 on GPIOs 16 and 17\n");
+		enable ? printf("Enabling ") : printf("Disabling ");
+		printf("CTS0 and RTS0 on GPIOs 16 and 17\n");
 	}
 	else { /* 26 pin GPIO header */
 		gfpsel = GFPSEL3;
 		gpiomask = GPIO3031mask;
-		printf("Enabling CTS0 and RTS0 on GPIOs 30 and 31\n");
+		enable ? printf("Enabling ") : printf("Disabling ");
+		printf("CTS0 and RTS0 on GPIOs 30 and 31\n");
 	}
 	
 	enable ? (gpio[gfpsel] |= gpiomask) : (gpio[gfpsel] &= ~gpiomask);
