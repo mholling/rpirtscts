@@ -31,7 +31,7 @@
 #define GPIO_header_26 0x00
 #define GPIO_header_40 0x01
 
-#define VERSION "1.2"
+#define VERSION "1.3"
 
 #include <stdio.h>
 #include <stdlib.h>
