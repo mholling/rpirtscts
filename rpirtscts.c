@@ -21,7 +21,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define GPIO_BASE (0x20200000)
+#define GPIO_OFFSET (0x200000)
 #define BLOCK_SIZE (4*1024)
 #define GFPSEL3 (3)
 #define GPIO3031mask 0x0000003f /* GPIO 30 for CTS0 and 31 for RTS0 */
@@ -40,6 +40,20 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+
+unsigned gpio_base()
+{ /* adapted from bcm_host.c */
+	unsigned address = ~0;
+	FILE *fp = fopen("/proc/device-tree/soc/ranges", "rb");
+	if (fp) {
+		unsigned char buf[4];
+		fseek(fp, 4, SEEK_SET);
+		if (fread(buf, 1, sizeof buf, fp) == sizeof buf)
+			address = buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3] << 0;
+		fclose(fp);
+	}
+	return (address == ~0 ? 0x20000000 : address) + GPIO_OFFSET;
+}
 
 int rpi_version() {
 	int result = -1;
@@ -99,7 +113,7 @@ void set_rts_cts(int enable) {
 		exit(EXIT_FAILURE);
 	}
 	
-	void *gpio_map = mmap(NULL, BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
+	void *gpio_map = mmap(NULL, BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, gpio_base());
 	close(fd);
 	if (gpio_map == MAP_FAILED) {
 		fprintf(stderr, "mmap error (%s)\n", strerror(errno));
