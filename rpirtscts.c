@@ -31,7 +31,7 @@
 #define GPIO_header_26 0x00
 #define GPIO_header_40 0x01
 
-#define VERSION "1.4"
+#define VERSION "1.5"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,15 +58,18 @@ unsigned gpio_base()
 int rpi_version() {
 	int result = -1;
 	char string[256];
-	FILE *fp = fopen("/sys/module/bcm2708/parameters/boardrev", "r");
-	if (!fp)
-		fp = fopen("/sys/module/bcm2709/parameters/boardrev", "r");
+	FILE *fp = fopen("/proc/cpuinfo", "r");
 	if (fp) {
-		fscanf(fp, "%i", &result);
+		while (fscanf(fp, "%255s", string) == 1)
+			if (strcmp(string, "Revision") == 0)
+				break;
+		while (fscanf(fp, "%255s", string) == 1)
+			if (sscanf(string, "%x", &result) == 1)
+				break;
 		fclose(fp);
 	}
 	if (result < 0) {
-		fprintf(stderr, "can't parse /sys/module/bcm270*/parameters/boardrev\n");
+		fprintf(stderr, "can't parse /proc/cpuinfo\n");
 		exit(EXIT_FAILURE);
 	} else
 		result &= ~(1 << 24 | 1 << 25); // clear warranty bits
